@@ -17,10 +17,17 @@ contract SimpleSwapPool {
     uint256 public feePercentage = 30; // Fee in basis points (100 = 1%) Default 0.3%
     bool public paused;
 
-    event Swap(
+    event eurcSwap(
         address indexed user,
         uint256 usdcAmount,
         uint256 eurcAmount,
+        uint256 fee
+    );
+
+     event usdcSwap(
+        address indexed user,
+        uint256 eurcAmount,
+        uint256 usdcAmount,
         uint256 fee
     );
 
@@ -44,8 +51,8 @@ contract SimpleSwapPool {
     }
     
 
-    //Swap
-   function swap(uint256 usdcAmount) external whenNotPaused {
+    //Swap For EURC
+    function swapUSDC(uint256 usdcAmount) external whenNotPaused {
 
         uint256 minEurcAmount = 2e6; // Minimum 2 EURC
 
@@ -65,11 +72,11 @@ contract SimpleSwapPool {
         // Transfer EURC from pool to user
         EURC.safeTransfer(msg.sender, eurcAfterFee);
         
-        emit Swap(msg.sender, usdcAmount, eurcAfterFee, fee);
+        emit eurcSwap(msg.sender, usdcAmount, eurcAfterFee, fee);
     }
 
 
-      //Calculate rate 
+      //Calculate EURC rate 
      function calculateEurcAmount(uint256 usdcAmount) public view returns (uint256) {
         uint8 usdcDecimals = IERC20Metadata(address(USDC)).decimals();
         uint8 eurcDecimals = IERC20Metadata(address(EURC)).decimals();
@@ -81,11 +88,58 @@ contract SimpleSwapPool {
         return eurcIn18 / 10**(18 - eurcDecimals);
     }
 
-      //Get quote
-      function getQuote(uint256 usdcAmount) external view returns (uint256 eurcAmount, uint256 fee) {
+     //== USDC == //
+
+     function swapEURC (uint256 eurcAmount) external whenNotPaused{
+        uint256 minUsdcAmount = 2e6; // Minimum 2 USDC
+
+        require(eurcAmount > 0, "Amount must be > 0");
+
+
+        // Calculate USDC amount to send
+        uint256 usdcAmount = calculateUsdcAmount(eurcAmount);
+        uint256 fee = (usdcAmount * feePercentage) / 10000;
+        uint256 usdcAfterFee = usdcAmount - fee;
+
+        require(usdcAfterFee >= minUsdcAmount, "Slippage too high");
+        require(USDC.balanceOf(address(this)) >= usdcAfterFee, "Insufficient USDC in pool");
+
+         
+        // Transfer EURC from user to pool
+        EURC.safeTransferFrom(msg.sender, address(this), usdcAmount);
+        
+        // Transfer USDC from pool to user
+        USDC.safeTransfer(msg.sender, usdcAfterFee);
+        
+        emit usdcSwap(msg.sender, eurcAmount, usdcAfterFee, fee);
+
+     }
+
+     function calculateUsdcAmount(uint256 eurcAmount) public view returns (uint256) {
+        uint8 usdcDecimals = IERC20Metadata(address(USDC)).decimals();
+        uint8 eurcDecimals = IERC20Metadata(address(EURC)).decimals();
+        
+        // Normalize to 18 decimals, apply rate, then convert to EURC decimals
+        uint256 normalizedAmount = eurcAmount * 10**(18 - eurcDecimals);
+        uint256 usdcIn18 = (normalizedAmount * exchangeRate) / 1e18;
+        
+        return usdcIn18 / 10**(18 - usdcDecimals);
+    }
+
+
+
+      //Get EURC quote
+      function getEurcQuote(uint256 usdcAmount) external view returns (uint256 eurcAmount, uint256 fee) {
         uint256 gross = calculateEurcAmount(usdcAmount);
         fee = (gross * feePercentage) / 10000;
         eurcAmount = gross - fee;
+    }
+
+    //Get USDC quote
+      function getUsdcQuote(uint256 eurcAmount) external view returns (uint256 usdcAmount, uint256 fee) {
+        uint256 gross = calculateUsdcAmount(eurcAmount);
+        fee = (gross * feePercentage) / 10000;
+        usdcAmount = gross - fee;
     }
 
     //OWNER
