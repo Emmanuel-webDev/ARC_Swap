@@ -145,8 +145,13 @@ contract SimpleSwapPool {
     //OWNER
 
     //Fund Contract
-    function fundPool(uint256 amount) external onlyOwner {
+    function fundPoolWithEURC(uint256 amount) external onlyOwner {
         EURC.safeTransferFrom(msg.sender, address(this), amount);
+        emit PoolFunded(amount);
+    }
+
+    function fundPoolWithUSDC(uint256 amount) external onlyOwner {
+        USDC.safeTransferFrom(msg.sender, address(this), amount);
         emit PoolFunded(amount);
     }
 
