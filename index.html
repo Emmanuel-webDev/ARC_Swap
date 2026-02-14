@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcSwap - USDC ⟷ EURC</title>
+    <link href="https://fonts.googleapis.com/css2?family=FK+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="background-gradient">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            
+            ApexDistro Swap
+        </div>
+        <button class="wallet-button" id="walletBtn">Connect Wallet</button>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1> Bi-directional Swap on Arc</h1>
+            <p>Fast, secure, and simple token swaps on Arc blockchain with transparent fees</p>
+        </div>
+
+        <div class="swap-container">
+            <!-- Swap Interface -->
+            <div class="swap-card">
+                <h2 class="card-title">Swap Tokens</h2>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <div class="token-selector">
+                    <div class="token-option active" data-direction="usdc">
+                        USDC → EURC
+                    </div>
+                    <div class="token-option" data-direction="eurc">
+                        EURC → USDC
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>You send</span>
+                        <span>Balance: <span id="fromBalance">0.00</span></span>
+                    </div>
+                    <div class="input-wrapper">
+                        <input 
+                            type="number" 
+                            class="token-input" 
+                            id="fromAmount" 
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                        >
+                        <div class="token-badge" id="fromToken">USDC</div>
+                    </div>
+                </div>
+
+                <div class="swap-direction">
+                    <div class="swap-arrow" id="swapDirection">↓</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>You receive</span>
+                        <span>Balance: <span id="toBalance">0.00</span></span>
+                    </div>
+                    <div class="input-wrapper">
+                        <input 
+                            type="number" 
+                            class="token-input" 
+                            id="toAmount" 
+                            placeholder="0.00"
+                            readonly
+                        >
+                        <div class="token-badge" id="toToken">EURC</div>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Exchange Rate</span>
+                    <span class="info-value">1 USDC = 1 EURC</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Fee (0.3%)</span>
+                    <span class="info-value" id="feeAmount">0.00 EURC</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Minimum Output</span>
+                    <span class="info-value">2.00 tokens</span>
+                </div>
+
+                <button class="swap-button" id="swapBtn" disabled>
+                    Connect Wallet to Swap
+                </button>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-label">Pool Liquidity</div>
+                    <div class="stat-value" id="totalLiquidity">Loading...</div>
+                    <div class="stat-subvalue">Total Value Locked</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">USDC Pool</div>
+                    <div class="stat-value" id="usdcPool">-</div>
+                    <div class="stat-subvalue">Available</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">EURC Pool</div>
+                    <div class="stat-value" id="eurcPool">-</div>
+                    <div class="stat-subvalue">Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Ethers.js (browser build) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"
+      type="application/javascript"
+    ></script>
+    <script src="./script.js" type="module"></script>
+</body>
+</html>
