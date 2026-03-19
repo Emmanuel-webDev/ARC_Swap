@@ -11,12 +11,12 @@ import { ethers6Adapter } from "https://esm.sh/thirdweb@5.92.0/adapters/ethers6"
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const CONFIG = {
-  SWAP_CONTRACT: "0x37757AD0A16bFa13184507d16f34f043b7A63382",
+  SWAP_CONTRACT: "0xaAAb3dd70Efb7ce6772382877Db431C99A9A2988",
   USDC_ADDRESS: "0x3600000000000000000000000000000000000000",
   EURC_ADDRESS: "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a",
   CHAIN_ID: 5042002,
   RPC_URL: "https://5042002.rpc.thirdweb.com",
-  THIRDWEB_CLIENT_ID: "c4c035e19e102d32899f3d4e47a5572f", 
+  THIRDWEB_CLIENT_ID: "c4c035e19e102d32899f3d4e47a5572f",
 };
 
 // ─── THIRDWEB CLIENT & CHAIN (global scope — accessible everywhere) ───────────
@@ -32,9 +32,19 @@ const arcChain = defineChain({
 
 // ─── CONTRACT ABIs ────────────────────────────────────────────────────────────
 const SWAP_ABI = [
-  { inputs: [], stateMutability: "nonpayable", type: "constructor" },
   {
-    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
     name: "SafeERC20FailedOperation",
     type: "error",
   },
@@ -63,6 +73,19 @@ const SWAP_ABI = [
     ],
     name: "FeeUpdated",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "fundPoolWithEURC",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     anonymous: false,
@@ -99,7 +122,12 @@ const SWAP_ABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "user", type: "address" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
       {
         indexed: false,
         internalType: "uint256",
@@ -112,94 +140,214 @@ const SWAP_ABI = [
         name: "eurcAmount",
         type: "uint256",
       },
-      { indexed: false, internalType: "uint256", name: "fee", type: "uint256" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
     ],
     name: "eurcSwap",
     type: "event",
   },
   {
-    anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "user", type: "address" },
       {
-        indexed: false,
         internalType: "uint256",
-        name: "eurcAmount",
+        name: "amount",
         type: "uint256",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "usdcAmount",
-        type: "uint256",
-      },
-      { indexed: false, internalType: "uint256", name: "fee", type: "uint256" },
     ],
-    name: "usdcSwap",
-    type: "event",
-  },
-  {
-    inputs: [],
-    name: "EURC",
-    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "USDC",
-    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "usdcAmount", type: "uint256" }],
-    name: "calculateEurcAmount",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "eurcAmount", type: "uint256" }],
-    name: "calculateUsdcAmount",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "exchangeRate",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "feePercentage",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
-    name: "fundPoolWithEURC",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
     name: "fundPoolWithUSDC",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "usdcAmount", type: "uint256" }],
+    inputs: [
+      {
+        internalType: "bool",
+        name: "_paused",
+        type: "bool",
+      },
+    ],
+    name: "setPaused",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "eurcAmount",
+        type: "uint256",
+      },
+    ],
+    name: "swapEURC",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "usdcAmount",
+        type: "uint256",
+      },
+    ],
+    name: "swapUSDC",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "eurcAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "usdcAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "usdcSwap",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "usdcAmount",
+        type: "uint256",
+      },
+    ],
+    name: "calculateEurcAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "eurcAmount",
+        type: "uint256",
+      },
+    ],
+    name: "calculateUsdcAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "EURC",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "exchangeRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "feePercentage",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "usdcAmount",
+        type: "uint256",
+      },
+    ],
     name: "getEurcQuote",
     outputs: [
-      { internalType: "uint256", name: "eurcAmount", type: "uint256" },
-      { internalType: "uint256", name: "fee", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "eurcAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -208,18 +356,40 @@ const SWAP_ABI = [
     inputs: [],
     name: "getPoolBalance",
     outputs: [
-      { internalType: "uint256", name: "usdcBalance", type: "uint256" },
-      { internalType: "uint256", name: "eurcBalance", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "usdcBalance",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "eurcBalance",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "eurcAmount", type: "uint256" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "eurcAmount",
+        type: "uint256",
+      },
+    ],
     name: "getUsdcQuote",
     outputs: [
-      { internalType: "uint256", name: "usdcAmount", type: "uint256" },
-      { internalType: "uint256", name: "fee", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "usdcAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -227,46 +397,40 @@ const SWAP_ABI = [
   {
     inputs: [],
     name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "paused",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "bool", name: "_paused", type: "bool" }],
-    name: "setPaused",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "eurcAmount", type: "uint256" }],
-    name: "swapEURC",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "usdcAmount", type: "uint256" }],
-    name: "swapUSDC",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "token", type: "address" },
-      { internalType: "uint256", name: "amount", type: "uint256" },
+    inputs: [],
+    name: "USDC",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
     ],
-    name: "withdraw",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
 ];
