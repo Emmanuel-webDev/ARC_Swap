@@ -1,4 +1,4 @@
-// ─── THIRDWEB v5 IMPORTS ──────────────────────────────────────────────────────
+// ─── THIRDWEB IMPORTS
 import {
   createThirdwebClient,
   defineChain,
@@ -301,57 +301,196 @@ function showEmailModal() {
   modal.id = "aaModal";
   modal.innerHTML = `
     <div style="
-      position:fixed;inset:0;background:rgba(0,0,0,0.75);
+      position:fixed;inset:0;
+      background:rgba(248,247,255,0.85);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
       display:flex;align-items:center;justify-content:center;z-index:9999;">
+ 
       <div style="
-        background:#0f0f1a;border:1px solid #6d28d9;border-radius:20px;
-        padding:36px 32px;width:340px;text-align:center;
-        box-shadow:0 0 40px rgba(109,40,217,0.3);">
-        <div style="font-size:32px;margin-bottom:8px">⚡</div>
-        <h3 style="color:#fff;margin:0 0 6px;font-size:20px">Gasless Login</h3>
-        <p style="color:#9ca3af;font-size:13px;margin:0 0 24px;line-height:1.5">
+        background:#ffffff;
+        border:2px solid rgba(94,53,177,0.15);
+        border-radius:28px;
+        padding:44px 40px;
+        width:420px;
+        max-width:calc(100vw - 40px);
+        text-align:center;
+        box-shadow:0 8px 32px rgba(94,53,177,0.08);
+        animation: aaFadeIn 0.3s ease;
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+ 
+        <style>
+          @keyframes aaFadeIn {
+            from { opacity:0; transform:translateY(20px); }
+            to   { opacity:1; transform:translateY(0); }
+          }
+          @keyframes aaSpin {
+            to { transform:rotate(360deg); }
+          }
+          #aaModal input:focus {
+            outline:none;
+            border-color:#5e35b1 !important;
+            background:#ffffff !important;
+            box-shadow:0 0 0 4px rgba(94,53,177,0.1) !important;
+          }
+          #aaModal button:active {
+            transform:scale(0.98);
+          }
+        </style>
+ 
+        <!-- Icon -->
+        <div style="
+          width:56px;height:56px;
+          background:#5e35b1;
+          border-radius:50%;
+          display:flex;align-items:center;justify-content:center;
+          margin:0 auto 20px;
+          box-shadow:0 4px 20px rgba(94,53,177,0.3);">
+          <span style="color:#fff;font-size:26px;line-height:1;">⚡</span>
+        </div>
+ 
+        <!-- Title -->
+        <h3 style="
+          color:#1a1a2e;
+          font-size:26px;
+          font-weight:800;
+          letter-spacing:-0.02em;
+          margin:0 0 8px;">
+          Gasless Login
+        </h3>
+        <p style="
+          color:#9b8dbe;
+          font-size:15px;
+          margin:0 0 32px;
+          line-height:1.5;">
           Sign in with your email — no wallet needed, no gas fees
         </p>
+ 
+        <!-- Email Input -->
         <input id="aaEmail" type="email" placeholder="you@email.com"
-          style="width:100%;padding:11px 14px;border-radius:10px;
-                 background:#1a1a2e;border:1px solid #374151;color:#fff;
-                 font-size:14px;box-sizing:border-box;margin-bottom:10px;outline:none"/>
+          style="
+            width:100%;padding:18px 20px;
+            border-radius:20px;
+            background:#f8f7ff;
+            border:2px solid rgba(94,53,177,0.15);
+            color:#1a1a2e;
+            font-size:16px;
+            font-weight:500;
+            box-sizing:border-box;
+            margin-bottom:14px;
+            transition:all 0.3s ease;"/>
+ 
+        <!-- Send OTP Button -->
         <button id="aaEmailSend" style="
-          width:100%;padding:12px;border-radius:10px;
-          background:#6d28d9;color:#fff;border:none;
-          font-size:15px;cursor:pointer;font-weight:600;">
+          width:100%;padding:17px;
+          border-radius:20px;
+          background:#5e35b1;
+          color:#ffffff;
+          border:none;
+          font-size:17px;
+          font-weight:700;
+          cursor:pointer;
+          letter-spacing:-0.01em;
+          box-shadow:0 4px 20px rgba(94,53,177,0.3);
+          transition:all 0.3s ease;">
           Send OTP Code
         </button>
-        <div id="aaOTPSection" style="display:none;margin-top:14px">
-          <p style="color:#6ee7b7;font-size:12px;margin:0 0 10px">
-            ✓ Code sent! Check your inbox
-          </p>
+ 
+        <!-- OTP Section (hidden until email sent) -->
+        <div id="aaOTPSection" style="display:none;margin-top:20px;">
+ 
+          <!-- Success note -->
+          <div style="
+            background:rgba(0,214,50,0.08);
+            border:2px solid rgba(0,214,50,0.25);
+            border-radius:14px;
+            padding:12px 16px;
+            margin-bottom:16px;
+            color:#059669;
+            font-size:14px;
+            font-weight:500;
+            display:flex;align-items:center;gap:8px;justify-content:center;">
+            <span>✓</span> Code sent! Check your inbox
+          </div>
+ 
+          <!-- OTP Input -->
           <input id="aaOTP" type="text" placeholder="Enter 6-digit code"
-            style="width:100%;padding:11px 14px;border-radius:10px;
-                   background:#1a1a2e;border:1px solid #374151;color:#fff;
-                   font-size:16px;box-sizing:border-box;margin-bottom:10px;
-                   letter-spacing:6px;text-align:center;outline:none"/>
+            style="
+              width:100%;padding:18px 20px;
+              border-radius:20px;
+              background:#f8f7ff;
+              border:2px solid rgba(94,53,177,0.15);
+              color:#1a1a2e;
+              font-size:22px;
+              font-weight:700;
+              box-sizing:border-box;
+              margin-bottom:14px;
+              letter-spacing:10px;
+              text-align:center;
+              transition:all 0.3s ease;"/>
+ 
+          <!-- Verify Button -->
           <button id="aaOTPVerify" style="
-            width:100%;padding:12px;border-radius:10px;
-            background:#059669;color:#fff;border:none;
-            font-size:15px;cursor:pointer;font-weight:600;">
+            width:100%;padding:17px;
+            border-radius:20px;
+            background:#5e35b1;
+            color:#ffffff;
+            border:none;
+            font-size:17px;
+            font-weight:700;
+            cursor:pointer;
+            letter-spacing:-0.01em;
+            box-shadow:0 4px 20px rgba(94,53,177,0.3);
+            transition:all 0.3s ease;">
             Connect Wallet
           </button>
         </div>
-        <p id="aaModalMsg" style="color:#f87171;font-size:13px;margin-top:12px;min-height:18px"></p>
-        <hr style="border:none;border-top:1px solid #1f2937;margin:20px 0"/>
+ 
+        <!-- Error/Info Message -->
+        <p id="aaModalMsg" style="
+          color:#ef4444;
+          font-size:14px;
+          margin-top:14px;
+          min-height:18px;
+          font-weight:500;">
+        </p>
+ 
+        <!-- Divider -->
+        <div style="
+          display:flex;align-items:center;gap:12px;
+          margin:24px 0;">
+          <div style="flex:1;height:1px;background:rgba(94,53,177,0.1);"></div>
+          <span style="color:#9b8dbe;font-size:13px;font-weight:500;">or</span>
+          <div style="flex:1;height:1px;background:rgba(94,53,177,0.1);"></div>
+        </div>
+ 
+        <!-- MetaMask Button -->
         <button id="aaMetaMask" style="
-          width:100%;padding:11px;border-radius:10px;
-          background:#1a1a2e;color:#d1d5db;border:1px solid #374151;
-          font-size:14px;cursor:pointer;">
-          🦊 Use MetaMask instead
+          width:100%;padding:16px;
+          border-radius:20px;
+          background:#f8f7ff;
+          color:#1a1a2e;
+          border:2px solid rgba(94,53,177,0.15);
+          font-size:16px;
+          font-weight:600;
+          cursor:pointer;
+          transition:all 0.3s ease;
+          display:flex;align-items:center;justify-content:center;gap:10px;">
+          <span style="font-size:20px;">🦊</span>
+          Use MetaMask instead
         </button>
+ 
+        <!-- Cancel -->
         <button id="aaClose" style="
-          margin-top:10px;background:none;border:none;
-          color:#6b7280;cursor:pointer;font-size:12px;
-          display:block;width:100%;text-align:center;">
+          margin-top:14px;
+          background:none;border:none;
+          color:#9b8dbe;cursor:pointer;
+          font-size:14px;font-weight:500;
+          display:block;width:100%;text-align:center;
+          transition:color 0.2s ease;">
           Cancel
         </button>
+ 
       </div>
     </div>
   `;
